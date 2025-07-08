@@ -24,6 +24,10 @@ WORKDIR /app
 
 COPY --from=base --chown=node:node /app /app
 
+# Copy static assets and set ownership
+COPY public ./public
+RUN chown -R node:node ./public
+
 USER node
 
 CMD ["index.js"]
