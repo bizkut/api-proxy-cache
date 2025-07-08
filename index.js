@@ -94,7 +94,8 @@ for (const path in config.proxy) {
         );
 
         if (!isTextBased) {
-          return; // Don't modify non-text responses
+          proxyRes.pipe(res); // Pipe non-text /api/v2/ responses directly
+          return;
         }
 
         let body = [];
@@ -108,35 +109,12 @@ for (const path in config.proxy) {
 
           const processBody = (rawBody) => {
             let bodyString = rawBody.toString('utf8');
-            const newMainDomain = replacementDomain; // 'flixapi.gametrader.my'
-            const newImgDomain = 'img.flixapi.gametrader.my'; // Assuming consistent subdomain replacement
+            // replacementDomain is 'flixapi.gametrader.my', inherited from outer scope
+            const originalString = 'https://yts.mx/';
+            const newString = 'https://flixapi.gametrader.my/'; // replacementDomain should be this
 
-            // Since this now only applies to /api/v2/ responses (likely JSON),
-            // a simpler, more global replacement is safer than for general HTML.
-            // We still want to replace different forms of the domain.
-            const replacements = [
-              { original: 'https://yts.mx', newDomain: newMainDomain },
-              { original: 'http://yts.mx', newDomain: newMainDomain },
-              { original: '//yts.mx', newDomain: newMainDomain },
-              { original: 'https://img.yts.mx', newDomain: newImgDomain },
-              { original: 'http://img.yts.mx', newDomain: newImgDomain },
-              { original: '//img.yts.mx', newDomain: newImgDomain }
-            ];
-
-            replacements.forEach(item => {
-              // Simple global string replacement for each specific original string
-              // The 'split/join' method is a common way to do global replace for fixed strings
-              bodyString = bodyString.split(item.original).join(item.newDomain);
-            });
-
-            // A broader replacement for 'yts.mx' if it appears without protocol,
-            // but this is less likely in API JSON URLs.
-            // This might be too aggressive if 'yts.mx' appears as a legitimate string value not part of a URL.
-            // Given it's API JSON, it's more likely to be in full URLs.
-            // Let's comment this out for now to be safer.
-            // if (bodyString.includes(targetDomain)) { // targetDomain is 'yts.mx'
-            //    bodyString = bodyString.replace(new RegExp(targetDomain.replace(/\./g, '\\.'), 'g'), newMainDomain);
-            // }
+            // Direct global replacement of the specific string
+            bodyString = bodyString.split(originalString).join(newString);
 
             return Buffer.from(bodyString, 'utf8');
           };
