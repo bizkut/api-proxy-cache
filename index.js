@@ -66,6 +66,19 @@ for (const path in config.proxy) {
       target,
       selfHandleResponse: true, // Important: Prevents HPM from sending headers/body prematurely
       onProxyRes: function (proxyRes, req, res) {
+        // Only apply domain replacement for /api/v2/ paths
+        if (!req.originalUrl.startsWith('/api/v2/')) {
+          // For other paths, if any are proxied and selfHandleResponse is true,
+          // we need to pipe the original response. Otherwise, HPM would do nothing.
+          // However, current proxy rules are only for /api/v2 and /cdn-cgi.
+          // If /cdn-cgi needs to be piped, it would need its own onProxyRes or different handling.
+          // For now, assuming this onProxyRes is primarily for /api/v2.
+          // If selfHandleResponse is true, we MUST handle the response.
+          // So, if not /api/v2, we should pipe the original response through.
+          proxyRes.pipe(res);
+          return;
+        }
+
         const targetDomain = 'yts.mx';
         const replacementDomain = 'flixapi.gametrader.my'; // As per user's previous request, ensure this is correct
 
@@ -95,9 +108,36 @@ for (const path in config.proxy) {
 
           const processBody = (rawBody) => {
             let bodyString = rawBody.toString('utf8');
-            if (bodyString.includes(targetDomain)) {
-              bodyString = bodyString.replace(new RegExp(targetDomain.replace(/\./g, '\\.'), 'g'), replacementDomain);
-            }
+            const newMainDomain = replacementDomain; // 'flixapi.gametrader.my'
+            const newImgDomain = 'img.flixapi.gametrader.my'; // Assuming consistent subdomain replacement
+
+            // Since this now only applies to /api/v2/ responses (likely JSON),
+            // a simpler, more global replacement is safer than for general HTML.
+            // We still want to replace different forms of the domain.
+            const replacements = [
+              { original: 'https://yts.mx', newDomain: newMainDomain },
+              { original: 'http://yts.mx', newDomain: newMainDomain },
+              { original: '//yts.mx', newDomain: newMainDomain },
+              { original: 'https://img.yts.mx', newDomain: newImgDomain },
+              { original: 'http://img.yts.mx', newDomain: newImgDomain },
+              { original: '//img.yts.mx', newDomain: newImgDomain }
+            ];
+
+            replacements.forEach(item => {
+              // Simple global string replacement for each specific original string
+              // The 'split/join' method is a common way to do global replace for fixed strings
+              bodyString = bodyString.split(item.original).join(item.newDomain);
+            });
+
+            // A broader replacement for 'yts.mx' if it appears without protocol,
+            // but this is less likely in API JSON URLs.
+            // This might be too aggressive if 'yts.mx' appears as a legitimate string value not part of a URL.
+            // Given it's API JSON, it's more likely to be in full URLs.
+            // Let's comment this out for now to be safer.
+            // if (bodyString.includes(targetDomain)) { // targetDomain is 'yts.mx'
+            //    bodyString = bodyString.replace(new RegExp(targetDomain.replace(/\./g, '\\.'), 'g'), newMainDomain);
+            // }
+
             return Buffer.from(bodyString, 'utf8');
           };
 
