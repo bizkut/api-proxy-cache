@@ -12,7 +12,9 @@ COPY src ./src
 RUN chown -R 1000:1000 /app
 
 
-FROM gcr.io/distroless/nodejs:16
+FROM node:16-alpine
+
+RUN addgroup -g 1000 appgroup && adduser -D -u 1000 -G appgroup appuser
 
 ENV PORT=8080 \
     HOST=0.0.0.0 \
@@ -22,8 +24,8 @@ EXPOSE ${PORT}
 
 WORKDIR /app
 
-COPY --from=base --chown=1000:1000 /app /app
+COPY --from=base --chown=appuser:appgroup /app /app
 
-USER 1000
+USER appuser
 
 CMD ["index.js"]
