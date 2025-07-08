@@ -5,348 +5,227 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation</title>
     <style>
-        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; margin: 0 auto; max-width: 1000px; }
         pre { white-space: pre-wrap; word-wrap: break-word; background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
         a { color: #007bff; }
         .endpoint-section { margin-bottom: 30px; padding: 20px; border: 1px solid #eee; border-radius: 5px; }
-        h1, h2, h3 { color: #333; }
+        h1, h2, h3 { color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
+        h1 { font-size: 1.8em; }
+        h2 { font-size: 1.5em; margin-top: 40px;}
+        h3 { font-size: 1.2em; margin-top: 30px;}
         table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f9f9f9; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.95em; }
+        th { background-color: #f0f0f0; font-weight: bold; }
+        code { background-color: #e8e8e8; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        .description { margin-bottom: 10px;}
+        .example-url { word-break: break-all; }
     </style>
 </head>
 <body>
-    <pre>
-    #[1]YTS - The Official Home of YIFY Movie Torrent Downloads
+    <h1>API Documentation</h1>
+
+    <div class="endpoint-section">
+        <p class="description">This is a lightweight web service, (REST interface), which provides an
+easy way to access the website's data.
+An API (Application programming interface) is a protocol intended to be
+used as an interface by software components to communicate with each
+other.</p>
+        <p class="description">Our API supports many methods, so there should not be a problem coding
+some nice applications.</p>
+    </div>
+
+    <div class="endpoint-section">
+        <h2>API Endpoints Overview</h2>
+        <ul>
+            <li><a href="#list_movies">List Movies</a></li>
+            <li><a href="#movie_details">Movie Details</a></li>
+            <li><a href="#movie_suggestions">Movie Suggestions</a></li>
+            <li><a href="#movie_parental_guides">Movie Parental Guides</a></li>
+        </ul>
+
+        <h3>Common Response Structure</h3>
+        <p>All the API endpoints return the same data structure as below:</p>
+        <table>
+            <thead>
+                <tr><th>Returned Key</th><th>Description</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>status</td><td>The returned status for the API call, can be either 'ok' or 'error'</td><td><code>ok</code></td></tr>
+                <tr><td>status_message</td><td>Either the error message or the successful message</td><td><code>Query was successful</code></td></tr>
+                <tr><td>data</td><td>If 'status' is returned as 'ok' the API query results will be inside 'data'</td><td><code>{...}</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="list_movies" class="endpoint-section">
+        <h2>List Movies</h2>
+        <p class="description">Used to list and search through out all the available movies. Can sort, filter, search and order the results.</p>
+        <p><strong>HTTP Method:</strong> GET</p>
+
+        <h3>Endpoints:</h3>
+        <ul>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/list_movies.json</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/list_movies.jsonp</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/list_movies.xml</code></li>
+        </ul>
+
+        <h3>Parameters:</h3>
+        <table>
+            <thead>
+                <tr><th>Parameter</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>limit</td><td>No</td><td>Integer (1-50)</td><td>20</td><td>The limit of results per page.</td></tr>
+                <tr><td>page</td><td>No</td><td>Integer (Unsigned)</td><td>1</td><td>Used to see the next page of movies.</td></tr>
+                <tr><td>quality</td><td>No</td><td>String</td><td>All</td><td>Filter by quality (e.g., <code>480p</code>, <code>720p</code>, <code>1080p</code>, <code>2160p</code>, <code>3D</code>).</td></tr>
+                <tr><td>minimum_rating</td><td>No</td><td>Integer (0-9)</td><td>0</td><td>Filter by minimum IMDb rating.</td></tr>
+                <tr><td>query_term</td><td>No</td><td>String</td><td>0</td><td>Movie search term (Title/IMDb Code, Actor, Director).</td></tr>
+                <tr><td>genre</td><td>No</td><td>String</td><td>All</td><td>Filter by genre (See IMDb for full list).</td></tr>
+                <tr><td>sort_by</td><td>No</td><td>String</td><td>date_added</td><td>Sort results by (<code>title</code>, <code>year</code>, <code>rating</code>, <code>peers</code>, <code>seeds</code>, <code>download_count</code>, <code>like_count</code>, <code>date_added</code>).</td></tr>
+                <tr><td>order_by</td><td>No</td><td>String</td><td>desc</td><td>Order results (<code>desc</code>, <code>asc</code>).</td></tr>
+                <tr><td>with_rt_ratings</td><td>No</td><td>Boolean</td><td>false</td><td>Include Rotten Tomatoes ratings.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Examples:</h3>
+        <table>
+            <thead>
+                <tr><th>URL</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="example-url">https://flixapi.gametrader.my/api/v2/list_movies.json?quality=3D</code></td><td>Returns the latest 20 3D movies (JSON format).</td></tr>
+                <tr><td><code class="example-url">https://flixapi.gametrader.my/api/v2/list_movies.xml?sort_by=seeds&amp;limit=15</code></td><td>Returns max 15 movies sorted by seeds (XML format). (Note: sort_by was 'sort' in original, corrected to 'sort_by')</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Response Data Example (inside 'data' object):</h3>
+        <table>
+            <thead>
+                <tr><th>Key Name</th><th>Description</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>movie_count</td><td>The total movie count results for your query</td><td><code>2131</code></td></tr>
+                <tr><td>limit</td><td>The limit of results per page that has been set</td><td><code>20</code></td></tr>
+                <tr><td>page_number</td><td>The current page number you are viewing</td><td><code>1</code></td></tr>
+                <tr><td>movies</td><td>An array which will hold multiple movies and their relative information</td><td><code>[...]</code></td></tr>
+            </tbody>
+        </table>
+        <p><strong>Magnet URLs:</strong> Construct these yourself: <code>magnet:?xt=urn:btih:TORRENT_HASH&amp;dn=Url+Encoded+Movie+Name&amp;tr=TRACKER_URL_1&amp;tr=TRACKER_URL_2</code></p>
+        <p>Recommended trackers:</p>
+        <ul>
+            <li><code>udp://open.demonii.com:1337/announce</code></li>
+            <li><code>udp://tracker.openbittorrent.com:80</code></li>
+            <li><code>udp://tracker.coppersurfer.tk:6969</code></li>
+            <li><code>udp://glotorrents.pw:6969/announce</code></li>
+            <li><code>udp://tracker.opentrackr.org:1337/announce</code></li>
+            <li><code>udp://torrent.gresille.org:80/announce</code></li>
+            <li><code>udp://p4p.arenabg.com:1337</code></li>
+            <li><code>udp://tracker.leechers-paradise.org:6969</code></li>
+        </ul>
+    </div>
+
+    <div id="movie_details" class="endpoint-section">
+        <h2>Movie Details</h2>
+        <p class="description">Returns the information about a specific movie.</p>
+        <p><strong>HTTP Method:</strong> GET</p>
+
+        <h3>Endpoints:</h3>
+        <ul>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_details.json</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_details.jsonp</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_details.xml</code></li>
+        </ul>
+
+        <h3>Parameters:</h3>
+        <table>
+            <thead>
+                <tr><th>Parameter</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>movie_id or imdb_id</td><td>Yes (one of them)</td><td>Integer (Unsigned)</td><td>null</td><td>The movie ID or the IMDB ID.</td></tr>
+                <tr><td>with_images</td><td>No</td><td>Boolean</td><td>false</td><td>Include image URLs in the response.</td></tr>
+                <tr><td>with_cast</td><td>No</td><td>Boolean</td><td>false</td><td>Include cast information in the response.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Examples:</h3>
+        <table>
+            <thead>
+                <tr><th>URL</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_details.json?movie_id=10</code></td><td>Returns basic information for movie ID 10.</td></tr>
+                <tr><td><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_details.json?movie_id=15&amp;with_images=true&amp;with_cast=true</code></td><td>Returns full information (images, cast) for movie ID 15.</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Magnet URLs:</strong> See List Movies section for construction details and recommended trackers.</p>
+    </div>
+
+    <div id="movie_suggestions" class="endpoint-section">
+        <h2>Movie Suggestions</h2>
+        <p class="description">Returns 4 related movies as suggestions.</p>
+        <p><strong>HTTP Method:</strong> GET</p>
+
+        <h3>Endpoints:</h3>
+        <ul>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_suggestions.json</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_suggestions.jsonp</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_suggestions.xml</code></li>
+        </ul>
+
+        <h3>Parameters:</h3>
+        <table>
+            <thead>
+                <tr><th>Parameter</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>movie_id</td><td>Yes</td><td>Integer (Unsigned)</td><td>null</td><td>The ID of the movie.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Examples:</h3>
+        <table>
+            <thead>
+                <tr><th>URL</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_suggestions.json?movie_id=10</code></td><td>Returns related movies for movie ID 10.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="movie_parental_guides" class="endpoint-section">
+        <h2>Movie Parental Guides</h2>
+        <p class="description">Returns all the parental guide ratings for the specified movie.</p>
+        <p><strong>HTTP Method:</strong> GET</p>
+
+        <h3>Endpoints:</h3>
+        <ul>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_parental_guides.json</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_parental_guides.jsonp</code></li>
+            <li><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_parental_guides.xml</code></li>
+        </ul>
+
+        <h3>Parameters:</h3>
+        <table>
+            <thead>
+                <tr><th>Parameter</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>movie_id</td><td>Yes</td><td>Integer (Unsigned)</td><td>null</td><td>The ID of the movie.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Examples:</h3>
+        <table>
+            <thead>
+                <tr><th>URL</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="example-url">https://flixapi.gametrader.my/api/v2/movie_parental_guides.json?movie_id=10</code></td><td>Returns parental guides for movie ID 10.</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-   [2]YIFY-[3][logo-YTS.svg]
-
-   HD movies at the smallest file size.
-
-   ____________________
-     * [4]Home
-     * [5]4K
-     * [6]Trending
-     * [7]Browse Movies
-
-     * [8]Login  |  [9]Register
-
-   [10]4K
-
-   Login Register
-   ____________________
-   ____________________
-   (BUTTON) Login
-
-   [11]Forgot your password?
-   ____________________
-   ____________________
-   ____________________
-   ____________________
-   By clicking Register, you agree to our [12]Terms and Conditions
-   (BUTTON) Register
-
-   If you have Forgotten your password, just type in your E-mail Address
-   and YTS will send you a link to Reset Your Password.
-   ____________________
-   (BUTTON) Reset Password
-
-   [13]Back to login
-
-   Thanks for signing up to YTS.MX (YIFY Torrents Home)!
-   Your YTS account is active now and you can login to download YIFY
-   torrents.
-   [14]ajax spinner loading
-
-   Loading, please wait
-
-   ____________________ (BUTTON) Search
-
-   Quality:
-   [All_______]
-
-   Genre:
-   [All________]
-
-   Year:
-   [All______]
-
-   Rating:
-   [All]
-
-   Language:
-   [--------All--------_______]
-
-   Order By:
-   [Latest______]
-     * [15][small-cover.jpg]-[16][small-cover.jpg] Advanced Search
-       2025
-
-   Javascript not supported on your browser, please enable Javascript in
-   order to fully utilize the website
-
-API Documentation
-
-   This is a lightweight web service, (REST interface), which provides an
-   easy way to access the YTS website.
-   An API (Application programming interface) is a protocol intended to be
-   used as an interface by software components to communicate with each
-   other.
-   Our API supports many methods, so there should not be a problem coding
-   some nice applications.
-   If you find any bug, or have any questions, or any suggestions please
-   get in touch with us
-   [17]Contact Us
-
-API Endpoints
-
-   - [18]List Movies
-   - [19]Movie Details
-   - [20]Movie Suggestions
-   - [21]Movie Parental Guides
-
-   All the API endpoints return the same data structure as below
-   Returned Key Description Example
-   status The returned status for the API call, can be either 'ok' or
-   'error' ok
-   status_message Either the error message or the successful message Query
-   was successful
-   data If 'status' is returned as 'ok' the API query results will be
-   inside 'data' data
-
-List Movies
-
-HTTP GET
-
-   Endpoint Description
-   https://flixapi.gametrader.my/api/v2/list_movies.json
-   https://flixapi.gametrader.my/api/v2/list_movies.jsonp
-   https://flixapi.gametrader.my/api/v2/list_movies.xml Used to list and search through
-   out all the available movies. Can sort, filter, search and order the
-   results
-
-Endpoint Parameters
-
-   Parameter Required Type Default Description
-   limit Integer between 1 - 50 (inclusive) 20 The limit of results per
-   page that has been set
-   page Integer (Unsigned) 1 Used to see the next page of movies, eg
-   limit=15 and page=2 will show you movies 15-30
-   quality String (480p, 720p, 1080p, 1080p.x265, 2160p, 3D) All Used to
-   filter by a given quality
-   minimum_rating Integer between 0 - 9 (inclusive) 0 Used to filter movie
-   by a given minimum IMDb rating
-   query_term String 0 Used for movie search, matching on: Movie
-   Title/IMDb Code, Actor Name/IMDb Code, Director Name/IMDb Code
-   genre String All Used to filter by a given genre (See
-   http://www.imdb.com/genre/ for full list)
-   sort_by String (title, year, rating, peers, seeds, download_count,
-   like_count, date_added) date_added Sorts the results by choosen value
-   order_by String (desc, asc) desc Orders the results by either Ascending
-   or Descending order
-   with_rt_ratings Boolean false Returns the list with the Rotten Tomatoes
-   rating included
-
-Examples
-
-   URL Description
-   https://flixapi.gametrader.my/api/v2/list_movies.json?quality=3D Returns the latest 20
-   3D movies using JSON format
-   https://flixapi.gametrader.my/api/v2/list_movies.xml?sort=seeds&limit=15 Returns
-   maximum 15 movies which are sorted by seeds
-
-Response Data
-
-   Key Name Description Example
-   movie_count The total movie count results for your query 2131
-   limit The limit of results per page that has been set 20
-   page_number The current page number you are viewing 1
-   movies An array which will hold multiple movies and their relative
-   information ARRAY
-   To get Magnet URLs you need to construct this yourself like so:
-   magnet:?xt=urn:btih:TORRENT_HASH&dn=Url+Encoded+Movie+Name&tr=http://tr
-   ack.one:1234/announce&tr=udp://track.two:80
-   You can add as many trackers as you want, we recommend the following:
-   - udp://open.demonii.com:1337/announce
-   - udp://tracker.openbittorrent.com:80
-   - udp://tracker.coppersurfer.tk:6969
-   - udp://glotorrents.pw:6969/announce
-   - udp://tracker.opentrackr.org:1337/announce
-   - udp://torrent.gresille.org:80/announce
-   - udp://p4p.arenabg.com:1337
-   - udp://tracker.leechers-paradise.org:6969
-
-Movie Details
-
-HTTP GET
-
-   Endpoint Description
-   https://flixapi.gametrader.my/api/v2/movie_details.json
-   https://flixapi.gametrader.my/api/v2/movie_details.jsonp
-   https://flixapi.gametrader.my/api/v2/movie_details.xml Returns the information about a
-   specific movie
-
-Endpoint Parameters
-
-   Parameter Required Type Default Description
-   movie_id or imdb_id Integer (Unsigned) null The YTS ID of the movie or
-   the IMDB ID
-   with_images Boolean false When set the data returned will include the
-   added image URLs
-   with_cast Boolean false When set the data returned will include the
-   added information about the cast
-
-Examples
-
-   URL Description
-   https://flixapi.gametrader.my/api/v2/movie_details.json?movie_id=10 Returns basic
-   information about the movie with ID of 10
-   https://flixapi.gametrader.my/api/v2/movie_details.json?movie_id=15&with_images=true&w
-   ith_cast=true Returns the full information (with image urls and cast
-   information) about the movie with ID of 15
-   To get Magnet URLs you need to construct this yourself like so:
-   magnet:?xt=urn:btih:TORRENT_HASH&dn=Url+Encoded+Movie+Name&tr=http://tr
-   ack.one:1234/announce&tr=udp://track.two:80
-   You can add as many trackers as you want, we recommend the following:
-   - udp://glotorrents.pw:6969/announce
-   - udp://tracker.opentrackr.org:1337/announce
-   - udp://torrent.gresille.org:80/announce
-   - udp://tracker.openbittorrent.com:80
-   - udp://tracker.coppersurfer.tk:6969
-   - udp://tracker.leechers-paradise.org:6969
-   - udp://p4p.arenabg.ch:1337
-   - udp://tracker.internetwarriors.net:1337
-
-Movie Suggestions
-
-HTTP GET
-
-   Endpoint Description
-   https://flixapi.gametrader.my/api/v2/movie_suggestions.json
-   https://flixapi.gametrader.my/api/v2/movie_suggestions.jsonp
-   https://flixapi.gametrader.my/api/v2/movie_suggestions.xml Returns 4 related movies as
-   suggestions for the user
-
-Endpoint Parameters
-
-   Parameter Required        Type        Default     Description
-   movie_id           Integer (Unsigned) null    The ID of the movie
-
-Examples
-
-   URL Description
-   https://flixapi.gametrader.my/api/v2/movie_suggestions.json?movie_id=10 Returns
-   related movies to the movie with ID of 10
-
-Movie Parental Guides
-
-HTTP GET
-
-   Endpoint Description
-   https://flixapi.gametrader.my/api/v2/movie_parental_guides.json
-   https://flixapi.gametrader.my/api/v2/movie_parental_guides.jsonp
-   https://flixapi.gametrader.my/api/v2/movie_parental_guides.xml Returns all the
-   parental guide ratings for the specified movie
-
-Endpoint Parameters
-
-   Parameter Required        Type        Default     Description
-   movie_id           Integer (Unsigned) null    The ID of the movie
-
-Examples
-
-   URL Description
-   https://flixapi.gametrader.my/api/v2/movie_parental_guides.json?movie_id=10 Returns
-   the parental guides for the movie with the ID of 10
-   [22]
-
-   Home
-   [23]
-
-   Browse
-   [24]
-
-   Login
-   [25]
-
-   Register
-   [26]
-
-   Requests
-   [27]
-
-   Suggestions
-
-     * YTS © 2011 - 2025
-     * -
-     * [28]Blog
-     * -
-     * [29]DMCA
-     * -
-     * [30]API
-     * -
-     * [31]RSS
-     * -
-     * [32]Contact
-     * -
-     * [33]Browse Movies
-     * -
-     * [34]Requests
-     * -
-     * [35]Login
-     * -
-     * [36]Language
-
-     * By using this site you agree to and accept our [37]User Agreement,
-       which can be read [38]here.
-
-References
-
-   Visible links:
-   1. https://flixapi.gametrader.my/opensearch.xml
-   2. https://flixapi.gametrader.my/
-   3. https://flixapi.gametrader.my/assets/images/website/logo-YTS.svg
-   4. https://flixapi.gametrader.my/
-   5. https://flixapi.gametrader.my/browse-movies/0/2160p/all/0/latest/0/all
-   6. https://flixapi.gametrader.my/trending-movies
-   7. https://flixapi.gametrader.my/browse-movies
-   8. javascript:void(0)
-   9. javascript:void(0)
-  10. https://flixapi.gametrader.my/browse-movies/0/2160p/all/0/latest/0/all
-  11. javascript:void(0)
-  12. https://flixapi.gametrader.my/terms
-  13. javascript:void(0)
-  14. https://flixapi.gametrader.my/assets/images/website/ajax-spinner.gif
-  15. https://flixapi.gametrader.my/browse-movies
-  16. https://flixapi.gametrader.my/assets/images/movies/until_dawn_2025/small-cover.jpg
-  17. https://flixapi.gametrader.my/contact
-  18. https://flixapi.gametrader.my/api#list_movies
-  19. https://flixapi.gametrader.my/api#movie_details
-  20. https://flixapi.gametrader.my/api#movie_suggestions
-  21. https://flixapi.gametrader.my/api#movie_parental_guides
-  22. https://flixapi.gametrader.my/
-  23. https://flixapi.gametrader.my/browse-movies
-  24. https://flixapi.gametrader.my/login
-  25. https://flixapi.gametrader.my/register
-  26. https://flixapi.gametrader.my/requests
-  27. https://flixapi.gametrader.my/suggestions
-  28. https://flixapi.gametrader.my/blog
-  29. https://flixapi.gametrader.my/dmca
-  30. https://flixapi.gametrader.my/api
-  31. https://flixapi.gametrader.my/rss-guide
-  32. https://flixapi.gametrader.my/contact
-  33. https://flixapi.gametrader.my/browse-movies
-  34. https://flixapi.gametrader.my/requests
-  35. https://flixapi.gametrader.my/login
-  36. https://flixapi.gametrader.my/languages
-  37. https://flixapi.gametrader.my/terms
-  38. https://flixapi.gametrader.my/terms
-
-   Hidden links:
-  40. javascript:void(0)
-  41. https://flixapi.gametrader.my/trending-movies
-  42. https://flixapi.gametrader.my/browse-movies
-  43. https://flixapi.gametrader.my/login
-    </pre>
 </body>
 </html>
