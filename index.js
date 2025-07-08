@@ -32,9 +32,9 @@ app.use(cors());
 if (config.enable.logging) app.use(morgan('combined'));
 if (config.enable.compression) app.use(compression());
 
-// Specific redirect for /api to /api/
-app.get('/api', (req, res) => {
-  res.redirect('/api/');
+// Specific redirect for /apidoc to /apidoc/
+app.get('/apidoc', (req, res) => {
+  res.redirect('/apidoc/');
 });
 
 // Serve static files from the 'public' directory
