@@ -32,6 +32,11 @@ app.use(cors());
 if (config.enable.logging) app.use(morgan('combined'));
 if (config.enable.compression) app.use(compression());
 
+// Specific redirect for /api to /api/
+app.get('/api', (req, res) => {
+  res.redirect('/api/');
+});
+
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
