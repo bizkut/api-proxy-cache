@@ -9,6 +9,8 @@ RUN NODE_ENV=production npm ci
 COPY index.js *.md ./
 COPY src ./src
 
+RUN chown -R 1000:1000 /app
+
 
 FROM gcr.io/distroless/nodejs:16
 
@@ -20,9 +22,7 @@ EXPOSE ${PORT}
 
 WORKDIR /app
 
-COPY --from=base /app .
-
-RUN chown -R 1000:1000 /app
+COPY --from=base --chown=1000:1000 /app /app
 
 USER 1000
 
