@@ -32,6 +32,9 @@ app.use(cors());
 if (config.enable.logging) app.use(morgan('combined'));
 if (config.enable.compression) app.use(compression());
 
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
+
 const cache = apicache.options(apicacheOptions).middleware;
 
 app.get('/', (req, res) => {
