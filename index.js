@@ -64,6 +64,7 @@ for (const path in config.proxy) {
     createProxyMiddleware({
       changeOrigin: true,
       target,
+      selfHandleResponse: true, // Important: Prevents HPM from sending headers/body prematurely
       onProxyRes: function (proxyRes, req, res) {
         const targetDomain = 'yts.mx';
         const replacementDomain = 'flixapi.gametrader.my'; // As per user's previous request, ensure this is correct
