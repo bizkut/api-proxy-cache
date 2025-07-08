@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080" # Expose the port defined in Dockerfile and used by the app
+      # Maps port 8082 on your host machine to port 8080 in the 'app' container.
+      - "8082:8080"
     environment:
       NODE_ENV: production
       PORT: 8080 # Consistent with Dockerfile
@@ -22,7 +23,9 @@ services:
   redis:
     image: "redis:6-alpine" # Using a version compatible with redis@3.x.x client
     ports:
-      - "6379:6379" # Optional: expose Redis port to host for debugging
+      # Optionally maps port 6380 on your host to port 6379 in the 'redis' container.
+      # This allows you to connect to Redis from your host machine if needed for debugging.
+      - "6380:6379"
     volumes:
       - redis-data:/data
     networks:
