@@ -6,8 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      # Maps port 8082 on your host machine to port 8080 in the 'app' container.
-      - "8082:8080"
+      # Maps port 3001 on your host machine to port 8080 in the 'app' container,
+      # aligning with README example's host port.
+      - "3001:8080"
     environment:
       NODE_ENV: production
       PORT: 8080 # Consistent with Dockerfile
@@ -15,6 +16,10 @@ services:
       # Add any other necessary environment variables from .env or config for the app
       # For example, if ELASTIC_APM_SERVER_URL is needed:
       # ELASTIC_APM_SERVER_URL: http://your-apm-server:8200
+    env_file:
+      - .env
+    volumes:
+      - ./.proxyrc.json:/app/.proxyrc.json:ro
     depends_on:
       - redis
     networks:
