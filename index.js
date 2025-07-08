@@ -17,6 +17,7 @@ const cors = require('cors');
 const compression = require('compression');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const redis = require('redis');
+const path = require('path'); // Ensure path is required
 
 const apicacheOptions = {
   debug: config.enable.apicacheDebug
@@ -32,12 +33,16 @@ app.use(cors());
 if (config.enable.logging) app.use(morgan('combined'));
 if (config.enable.compression) app.use(compression());
 
-// Specific redirect for /apidoc to /apidoc/
+// Serve specific index.html for /apidoc and /apidoc/
 app.get('/apidoc', (req, res) => {
-  res.redirect('/apidoc/');
+  res.sendFile(path.join(__dirname, 'public', 'apidoc', 'index.html'));
+});
+app.get('/apidoc/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'apidoc', 'index.html'));
 });
 
 // Serve static files from the 'public' directory
+// This can remain for other potential static assets, or be removed if not needed elsewhere.
 app.use(express.static('public'));
 
 const cache = apicache.options(apicacheOptions).middleware;
