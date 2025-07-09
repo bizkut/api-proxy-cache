@@ -74,7 +74,13 @@ for (const path in config.proxy) {
           // If /cdn-cgi needs to be piped, it would need its own onProxyRes or different handling.
           // For now, assuming this onProxyRes is primarily for /api/v2.
           // If selfHandleResponse is true, we MUST handle the response.
-          // So, if not /api/v2, we should pipe the original response through.
+          // So, if not /api/v2, we explicitly set headers and status, then pipe.
+          res.statusCode = proxyRes.statusCode;
+          Object.keys(proxyRes.headers).forEach(key => {
+            if (proxyRes.headers[key] !== undefined) {
+              res.setHeader(key, proxyRes.headers[key]);
+            }
+          });
           proxyRes.pipe(res);
           return;
         }
