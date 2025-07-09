@@ -105,8 +105,7 @@ for (const path in config.proxy) {
 
         proxyRes.on('end', function () {
           body = Buffer.concat(body);
-          // DIAGNOSTIC: Prepend marker to raw concatenated body for /api/v2/ paths
-          body = Buffer.concat([Buffer.from("RAW_BODY_REACHED---"), body]);
+          // Old marker removed from here
 
           const contentEncoding = proxyRes.headers['content-encoding'];
 
@@ -164,7 +163,9 @@ for (const path in config.proxy) {
                 res.status(500).send('Error processing response.');
                 return;
               }
-              const modifiedBody = processBody(decompressed);
+              // DIAGNOSTIC: Prepend marker AFTER successful gzip decompression
+              const bodyWithMarkerGzip = Buffer.concat([Buffer.from("DECOMPRESSED_GZIP_DATA---"), decompressed]);
+              const modifiedBody = processBody(bodyWithMarkerGzip);
               finishResponse(modifiedBody);
             });
           } else if (contentEncoding === 'deflate') {
@@ -174,11 +175,15 @@ for (const path in config.proxy) {
                 res.status(500).send('Error processing response.');
                 return;
               }
-              const modifiedBody = processBody(decompressed);
+              // DIAGNOSTIC: Prepend marker AFTER successful deflate decompression
+              const bodyWithMarkerDeflate = Buffer.concat([Buffer.from("DECOMPRESSED_DEFLATE_DATA---"), decompressed]);
+              const modifiedBody = processBody(bodyWithMarkerDeflate);
               finishResponse(modifiedBody);
             });
           } else { // No compression or unknown
-            const modifiedBody = processBody(body);
+            // DIAGNOSTIC: Prepend marker for non-compressed data
+            const bodyWithMarkerNonCompressed = Buffer.concat([Buffer.from("NON_COMPRESSED_DATA---"), body]);
+            const modifiedBody = processBody(bodyWithMarkerNonCompressed);
             finishResponse(modifiedBody);
           }
         });
