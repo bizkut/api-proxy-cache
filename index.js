@@ -82,21 +82,21 @@ for (const path in config.proxy) {
         const targetDomain = 'yts.mx';
         const replacementDomain = 'flixapi.gametrader.my'; // As per user's previous request, ensure this is correct
 
-        // Only modify text-based content types - DIAGNOSTIC: Bypassing this check for /api/v2/
-        // const contentType = proxyRes.headers['content-type'];
-        // const isTextBased = contentType && (
-        //   contentType.includes('application/json') ||
-        //   contentType.includes('text/html') ||
-        //   contentType.includes('text/xml') ||
-        //   contentType.includes('text/javascript') || // common JS MIME type
-        //   contentType.includes('application/javascript') ||
-        //   contentType.includes('application/x-javascript')
-        // );
+        // Only modify text-based content types
+        const contentType = proxyRes.headers['content-type'];
+        const isTextBased = contentType && (
+          contentType.includes('application/json') ||
+          contentType.includes('text/html') ||
+          contentType.includes('text/xml') ||
+          contentType.includes('text/javascript') || // common JS MIME type
+          contentType.includes('application/javascript') ||
+          contentType.includes('application/x-javascript')
+        );
 
-        // if (!isTextBased) {
-        //   proxyRes.pipe(res); // Pipe non-text /api/v2/ responses directly
-        //   return;
-        // }
+        if (!isTextBased) {
+          proxyRes.pipe(res); // Pipe non-text /api/v2/ responses directly
+          return;
+        }
 
         let body = [];
         proxyRes.on('data', function (chunk) {
@@ -163,9 +163,7 @@ for (const path in config.proxy) {
                 res.status(500).send('Error processing response.');
                 return;
               }
-              // DIAGNOSTIC: Prepend marker AFTER successful gzip decompression
-              const bodyWithMarkerGzip = Buffer.concat([Buffer.from("DECOMPRESSED_GZIP_DATA---"), decompressed]);
-              const modifiedBody = processBody(bodyWithMarkerGzip);
+              const modifiedBody = processBody(decompressed); // Removed marker
               finishResponse(modifiedBody);
             });
           } else if (contentEncoding === 'deflate') {
@@ -175,15 +173,11 @@ for (const path in config.proxy) {
                 res.status(500).send('Error processing response.');
                 return;
               }
-              // DIAGNOSTIC: Prepend marker AFTER successful deflate decompression
-              const bodyWithMarkerDeflate = Buffer.concat([Buffer.from("DECOMPRESSED_DEFLATE_DATA---"), decompressed]);
-              const modifiedBody = processBody(bodyWithMarkerDeflate);
+              const modifiedBody = processBody(decompressed); // Removed marker
               finishResponse(modifiedBody);
             });
           } else { // No compression or unknown
-            // DIAGNOSTIC: Prepend marker for non-compressed data
-            const bodyWithMarkerNonCompressed = Buffer.concat([Buffer.from("NON_COMPRESSED_DATA---"), body]);
-            const modifiedBody = processBody(bodyWithMarkerNonCompressed);
+            const modifiedBody = processBody(body); // Removed marker
             finishResponse(modifiedBody);
           }
         });
