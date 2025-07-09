@@ -82,21 +82,21 @@ for (const path in config.proxy) {
         const targetDomain = 'yts.mx';
         const replacementDomain = 'flixapi.gametrader.my'; // As per user's previous request, ensure this is correct
 
-        // Only modify text-based content types
-        const contentType = proxyRes.headers['content-type'];
-        const isTextBased = contentType && (
-          contentType.includes('application/json') ||
-          contentType.includes('text/html') ||
-          contentType.includes('text/xml') ||
-          contentType.includes('text/javascript') || // common JS MIME type
-          contentType.includes('application/javascript') ||
-          contentType.includes('application/x-javascript')
-        );
+        // Only modify text-based content types - DIAGNOSTIC: Bypassing this check for /api/v2/
+        // const contentType = proxyRes.headers['content-type'];
+        // const isTextBased = contentType && (
+        //   contentType.includes('application/json') ||
+        //   contentType.includes('text/html') ||
+        //   contentType.includes('text/xml') ||
+        //   contentType.includes('text/javascript') || // common JS MIME type
+        //   contentType.includes('application/javascript') ||
+        //   contentType.includes('application/x-javascript')
+        // );
 
-        if (!isTextBased) {
-          proxyRes.pipe(res); // Pipe non-text /api/v2/ responses directly
-          return;
-        }
+        // if (!isTextBased) {
+        //   proxyRes.pipe(res); // Pipe non-text /api/v2/ responses directly
+        //   return;
+        // }
 
         let body = [];
         proxyRes.on('data', function (chunk) {
@@ -105,6 +105,9 @@ for (const path in config.proxy) {
 
         proxyRes.on('end', function () {
           body = Buffer.concat(body);
+          // DIAGNOSTIC: Prepend marker to raw concatenated body for /api/v2/ paths
+          body = Buffer.concat([Buffer.from("RAW_BODY_REACHED---"), body]);
+
           const contentEncoding = proxyRes.headers['content-encoding'];
 
           const processBody = (rawBody) => {
