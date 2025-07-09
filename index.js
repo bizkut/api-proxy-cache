@@ -109,12 +109,16 @@ for (const path in config.proxy) {
 
           const processBody = (rawBody) => {
             let bodyString = rawBody.toString('utf8');
-            // replacementDomain is 'flixapi.gametrader.my', inherited from outer scope
-            const originalString = 'https://yts.mx/';
-            const newString = 'https://flixapi.gametrader.my/'; // replacementDomain should be this
 
-            // Direct global replacement of the specific string
-            bodyString = bodyString.split(originalString).join(newString);
+            // replacementDomain ('flixapi.gametrader.my') is inherited from outer scope
+            const mainOriginal = 'https:\\/\\/yts.mx\\/';
+            const mainReplacement = 'https:\\/\\/flixapi.gametrader.my\\/';
+            bodyString = bodyString.split(mainOriginal).join(mainReplacement);
+
+            // Also handle img.yts.mx if it might appear with escaped slashes
+            const imgOriginal = 'https:\\/\\/img.yts.mx\\/';
+            const imgReplacement = 'https:\\/\\/img.flixapi.gametrader.my\\/'; // Assuming same target structure for img domain
+            bodyString = bodyString.split(imgOriginal).join(imgReplacement);
 
             return Buffer.from(bodyString, 'utf8');
           };
